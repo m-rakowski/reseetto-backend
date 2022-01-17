@@ -22,6 +22,10 @@ public class ImageOperationsTest {
                 List.of(new Point(0, 0), new Point(1, 0), new Point(0, 1), new Point(1, 1)),
                 List.of(new Point(0, 1), new Point(1, 1), new Point(1, 0), new Point(0, 0))
             },
+            {
+                List.of(new Point(0, 1), new Point(1, 1), new Point(0, 0), new Point(1, 0)),
+                List.of(new Point(0, 1), new Point(1, 1), new Point(1, 0), new Point(0, 0))
+            },
         });
     }
 
