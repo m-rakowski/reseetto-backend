@@ -93,24 +93,24 @@ public class ImageOperations {
 
     public static File fixPerspective(File imagePath) {
         Mat imageMat = loadImage(imagePath.getAbsolutePath());
-        saveImage(imageMat, "0_original" + "_" + imagePath.getName());
+//        saveImage(imageMat, "0_original" + "_" + imagePath.getName());
 
         Mat copyOfLoadedImage = imageMat.clone();
 
         double scale = resize(imageMat);
-        saveImage(imageMat, "1_resized" + "_" + imagePath.getName());
+//        saveImage(imageMat, "1_resized" + "_" + imagePath.getName());
 
         grayscale(imageMat);
-        saveImage(imageMat, "2_grayscaled" + "_" + imagePath.getName());
+//        saveImage(imageMat, "2_grayscaled" + "_" + imagePath.getName());
 
         gaussianBlur(imageMat);
-        saveImage(imageMat, "3_blurred" + "_" + imagePath.getName());
+//        saveImage(imageMat, "3_blurred" + "_" + imagePath.getName());
 
         MatOfPoint fourPoints = getBiggest4EdgedContour(getContours(getEdges(imageMat)));
         Core.multiply(fourPoints, new Scalar(scale, scale), fourPoints);
 
-        Imgproc.drawContours(copyOfLoadedImage, List.of(fourPoints), -1, new Scalar(0, 255, 0), 3);
-        saveImage(copyOfLoadedImage, "4_four_points" + "_" + imagePath.getName());
+//        Imgproc.drawContours(copyOfLoadedImage, List.of(fourPoints), -1, new Scalar(0, 255, 0), 3);
+//        saveImage(copyOfLoadedImage, "4_four_points" + "_" + imagePath.getName());
 
         MatOfPoint2f src = new MatOfPoint2f(
                 fourPoints.toList().get(0),
