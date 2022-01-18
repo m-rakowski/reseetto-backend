@@ -1,6 +1,7 @@
 package com.bifanas.controller;
 
 import com.bifanas.model.OcrResponse;
+import com.bifanas.services.ImageService;
 import com.bifanas.services.OpenCVService;
 import com.bifanas.services.TesseractService;
 import lombok.extern.slf4j.Slf4j;
@@ -27,36 +28,23 @@ import java.util.Objects;
 @Validated
 @RequestMapping("/api")
 @Slf4j
-public class OcrController {
+public class ImageController {
 
+    // TODO fix field injection not recommended
     @Autowired
-    TesseractService tesseractService;
-
-    @Autowired
-    OpenCVService openCVService;
+    ImageService imageService;
 
     @PostMapping("/image/ocr")
-    public ResponseEntity<OcrResponse> translate(@RequestParam(name = "file") MultipartFile file) throws Exception {
-        BufferedImage img = ImageIO.read(file.getInputStream());
-        OcrResponse ocrResponse = tesseractService.calculate(img);
+    public ResponseEntity<OcrResponse> ocr(@RequestParam(name = "file") MultipartFile multipartFile) throws Exception {
 
-        return new ResponseEntity<>(ocrResponse, HttpStatus.OK);
-    }
-
-
-    @PostMapping(value = "/image/fix-perspective",
-            produces = MediaType.IMAGE_JPEG_VALUE
-    )
-    public @ResponseBody
-    byte[] faceRecognition(@RequestParam(name = "file") MultipartFile multipartFile) throws IOException {
         File savedFile = new File(Objects.requireNonNull(multipartFile.getOriginalFilename()));
-
         try (OutputStream os = new FileOutputStream(savedFile)) {
             os.write(multipartFile.getBytes());
         }
 
-        File output = openCVService.fixImage(savedFile);
-        return FileUtils.readFileToByteArray(output);
+        OcrResponse ocrResponse = imageService.getTextFromFile(savedFile);
+
+        return new ResponseEntity<>(ocrResponse, HttpStatus.OK);
     }
 }
 
