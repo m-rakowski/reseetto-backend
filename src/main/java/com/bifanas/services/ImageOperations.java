@@ -4,10 +4,12 @@ import org.opencv.core.*;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.opencv.imgproc.Imgproc.COLOR_BGR2GRAY;
+import static org.opencv.imgproc.Imgproc.LINE_AA;
 
 public class ImageOperations {
     public static Double resize(Mat matImage) {
@@ -79,27 +81,69 @@ public class ImageOperations {
         Imgcodecs.imwrite(targetPath, imageMatrix);
     }
 
-    public static Mat fixPerspective(Mat imageMat, MatOfPoint fourPoints) {
-        return imageMat;//TODO
-    }
-
+    // TODO
     public static List<Point> orderPointsTopLeftTopRightBottomRightBottomLeft(List<Point> fourPoints) {
 
         if (fourPoints.size() != 4) {
             throw new IllegalArgumentException("there should be exactly 4 points in the list");
         }
 
-        // get the max box the points fit in
-        double minX = fourPoints.stream().map(p -> p.x).min(Double::compare).orElse(Double.MIN_VALUE);
-        double maxX = fourPoints.stream().map(p -> p.x).max(Double::compare).orElse(Double.MAX_VALUE);
-        double minY = fourPoints.stream().map(p -> p.y).min(Double::compare).orElse(Double.MIN_VALUE);
-        double maxY = fourPoints.stream().map(p -> p.y).max(Double::compare).orElse(Double.MAX_VALUE);
-
-        Point borderTopLeft = new Point(minX, maxY);
-        Point borderTopRight = new Point(maxX, maxY);
-        Point borderBottomRight = new Point(maxX, minY);
-        Point borderBottomLeft = new Point(minX, minY);
-
         return List.of();
+    }
+
+    public static File fixPerspective(File imagePath) {
+        Mat imageMat = loadImage(imagePath.getAbsolutePath());
+        saveImage(imageMat, "0_original" + "_" + imagePath.getName());
+
+        Mat copyOfLoadedImage = imageMat.clone();
+
+        double scale = resize(imageMat);
+        saveImage(imageMat, "1_resized" + "_" + imagePath.getName());
+
+        grayscale(imageMat);
+        saveImage(imageMat, "2_grayscaled" + "_" + imagePath.getName());
+
+        gaussianBlur(imageMat);
+        saveImage(imageMat, "3_blurred" + "_" + imagePath.getName());
+
+        MatOfPoint fourPoints = getBiggest4EdgedContour(getContours(getEdges(imageMat)));
+        Core.multiply(fourPoints, new Scalar(scale, scale), fourPoints);
+
+        Imgproc.drawContours(copyOfLoadedImage, List.of(fourPoints), -1, new Scalar(0, 255, 0), 3);
+        saveImage(copyOfLoadedImage, "4_four_points" + "_" + imagePath.getName());
+
+        MatOfPoint2f src = new MatOfPoint2f(
+                fourPoints.toList().get(0),
+                fourPoints.toList().get(1),
+                fourPoints.toList().get(2),
+                fourPoints.toList().get(3)
+        );
+
+        MatOfPoint2f dst = getMaxBoxOfPoints(fourPoints);
+
+        Mat warpMat = Imgproc.getPerspectiveTransform(src, dst);
+        Imgproc.warpPerspective(copyOfLoadedImage, copyOfLoadedImage, warpMat, copyOfLoadedImage.size());
+        saveImage(copyOfLoadedImage, "5_after_perspective_warp" + "_" + imagePath.getName());
+        return new File("5_after_perspective_warp" + "_" + imagePath.getName());
+    }
+
+    private static MatOfPoint2f getMaxBoxOfPoints(MatOfPoint points) {
+        // get the max box the points fit in
+        double minX = points.toList().stream().map(p -> p.x).min(Double::compare).orElse(Double.MIN_VALUE);
+        double maxX = points.toList().stream().map(p -> p.x).max(Double::compare).orElse(Double.MAX_VALUE);
+        double minY = points.toList().stream().map(p -> p.y).min(Double::compare).orElse(Double.MIN_VALUE);
+        double maxY = points.toList().stream().map(p -> p.y).max(Double::compare).orElse(Double.MAX_VALUE);
+
+        Point borderTopLeft = new Point(minX, minY);
+        Point borderTopRight = new Point(maxX, minY);
+        Point borderBottomRight = new Point(maxX, maxY);
+        Point borderBottomLeft = new Point(minX, maxY);
+
+        return new MatOfPoint2f(
+                borderTopLeft,
+                borderBottomLeft,
+                borderBottomRight,
+                borderTopRight
+        );
     }
 }
