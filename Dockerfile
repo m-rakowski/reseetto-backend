@@ -22,5 +22,8 @@ WORKDIR /usr/local/lib
 RUN mkdir tessdata
 COPY tessdata/por.traineddata tessdata/por.traineddata
 
+# create a temporary folder for file storage
+RUN mkdir public
+
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "/usr/local/lib/app.jar"]
