@@ -1,5 +1,6 @@
 package com.bifanas.services;
 
+import lombok.extern.slf4j.Slf4j;
 import org.opencv.core.*;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
@@ -7,34 +8,63 @@ import org.opencv.imgproc.Imgproc;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.opencv.imgproc.Imgproc.COLOR_BGR2GRAY;
-import static org.opencv.imgproc.Imgproc.LINE_AA;
 
+@Slf4j
 public class ImageOperations {
-    public static Double resize(Mat matImage) {
-        final Size size = matImage.size();
+    public static Double resize(Mat imageMat) {
+        final Size size = imageMat.size();
         final double height = size.height;
         final double width = size.width;
         final double ratio = height / width;
         final double newWidth = 500;
         final double newHeight = ratio * newWidth;
-        Imgproc.resize(matImage, matImage, new Size(newWidth, newHeight));
+        Imgproc.resize(imageMat, imageMat, new Size(newWidth, newHeight));
         final double scale = width / newWidth;
         return scale;
     }
 
-    public static void grayscale(Mat matImage) {
-        Imgproc.cvtColor(matImage, matImage, COLOR_BGR2GRAY);
+    public static void grayscale(Mat imageMat) {
+        Imgproc.cvtColor(imageMat, imageMat, COLOR_BGR2GRAY);
     }
 
-    public static void gaussianBlur(Mat matImage) {
-        Imgproc.GaussianBlur(matImage, matImage, new Size(5, 5), 0);
+    public static Optional<MatOfPoint> getFourPointsInScale(Mat imageMat, double scale) {
+        Optional<MatOfPoint> biggest4EdgedContour = getBiggest4EdgedContour(getContours(getEdges(imageMat)));
+
+        MatOfPoint target = new MatOfPoint();
+        if (biggest4EdgedContour.isPresent()) {
+            Core.multiply(biggest4EdgedContour.get(), new Scalar(scale, scale), target);
+            return Optional.of(target);
+        } else {
+            return Optional.empty();
+        }
     }
 
-    public static Mat getEdges(Mat matImage) {
+    public static void gaussianBlur(Mat imageMat) {
+        Imgproc.GaussianBlur(imageMat, imageMat, new Size(5, 5), 0);
+    }
+
+    public static void warpPerspective(Mat copyOfOriginalImage, MatOfPoint fourPoints) {
+        Imgproc.drawContours(copyOfOriginalImage, List.of(fourPoints), -1, new Scalar(0, 255, 0), 3);
+
+        MatOfPoint2f src = new MatOfPoint2f(
+                fourPoints.toList().get(0),
+                fourPoints.toList().get(1),
+                fourPoints.toList().get(2),
+                fourPoints.toList().get(3)
+        );
+
+        MatOfPoint2f dst = getMaxBoxOfPoints(fourPoints);
+
+        Mat warpMat = Imgproc.getPerspectiveTransform(src, dst);
+        Imgproc.warpPerspective(copyOfOriginalImage, copyOfOriginalImage, warpMat, copyOfOriginalImage.size());
+    }
+
+    public static Mat getEdges(Mat imageMat) {
         Mat edges = new Mat();
-        Imgproc.Canny(matImage, edges, 75, 200);
+        Imgproc.Canny(imageMat, edges, 75, 200);
 
         return edges;
     }
@@ -46,7 +76,7 @@ public class ImageOperations {
         return contours;
     }
 
-    public static MatOfPoint getBiggest4EdgedContour(List<MatOfPoint> contours) {
+    public static Optional<MatOfPoint> getBiggest4EdgedContour(List<MatOfPoint> contours) {
         contours.sort((a, b) -> (int) (Imgproc.contourArea(b) - Imgproc.contourArea(a)));
 
         MatOfPoint2f biggest4EdgedContour = null;
@@ -64,13 +94,13 @@ public class ImageOperations {
         }
 
         if (biggest4EdgedContour == null) {
-            throw new RuntimeException("no biggest4EdgedContour");
+            return Optional.empty();
         }
 
         MatOfPoint biggest4EdgedContourAsMatOfPoint = new MatOfPoint();
         biggest4EdgedContour.convertTo(biggest4EdgedContourAsMatOfPoint, CvType.CV_32S);
 
-        return biggest4EdgedContourAsMatOfPoint;
+        return Optional.of(biggest4EdgedContourAsMatOfPoint);
     }
 
     public static Mat loadImage(String imagePath) {
@@ -91,11 +121,11 @@ public class ImageOperations {
         return List.of();
     }
 
-    public static File fixPerspective(File imagePath) {
+    public static Optional<File> fixPerspective(File imagePath) {
         Mat imageMat = loadImage(imagePath.getAbsolutePath());
-//        saveImage(imageMat, "0_original" + "_" + imagePath.getName());
+        Mat copyOfOriginalImage = imageMat.clone();
 
-        Mat copyOfLoadedImage = imageMat.clone();
+//        saveImage(imageMat, "0_original" + "_" + imagePath.getName());
 
         double scale = resize(imageMat);
 //        saveImage(imageMat, "1_resized" + "_" + imagePath.getName());
@@ -106,25 +136,15 @@ public class ImageOperations {
         gaussianBlur(imageMat);
 //        saveImage(imageMat, "3_blurred" + "_" + imagePath.getName());
 
-        MatOfPoint fourPoints = getBiggest4EdgedContour(getContours(getEdges(imageMat)));
-        Core.multiply(fourPoints, new Scalar(scale, scale), fourPoints);
+        Optional<MatOfPoint> fourPoints = getFourPointsInScale(imageMat, scale);
 
-//        Imgproc.drawContours(copyOfLoadedImage, List.of(fourPoints), -1, new Scalar(0, 255, 0), 3);
-//        saveImage(copyOfLoadedImage, "4_four_points" + "_" + imagePath.getName());
-
-        MatOfPoint2f src = new MatOfPoint2f(
-                fourPoints.toList().get(0),
-                fourPoints.toList().get(1),
-                fourPoints.toList().get(2),
-                fourPoints.toList().get(3)
-        );
-
-        MatOfPoint2f dst = getMaxBoxOfPoints(fourPoints);
-
-        Mat warpMat = Imgproc.getPerspectiveTransform(src, dst);
-        Imgproc.warpPerspective(copyOfLoadedImage, copyOfLoadedImage, warpMat, copyOfLoadedImage.size());
-        saveImage(copyOfLoadedImage, "5_after_perspective_warp" + "_" + imagePath.getName());
-        return new File("5_after_perspective_warp" + "_" + imagePath.getName());
+        if (fourPoints.isPresent()) {
+            warpPerspective(copyOfOriginalImage, fourPoints.get());
+            saveImage(copyOfOriginalImage, "5_after_perspective_warp" + "_" + imagePath.getName());
+            return Optional.of(new File("5_after_perspective_warp" + "_" + imagePath.getName()));
+        } else {
+            return Optional.empty();
+        }
     }
 
     private static MatOfPoint2f getMaxBoxOfPoints(MatOfPoint points) {
