@@ -30,7 +30,7 @@ public class ImageOperations {
     }
 
     public static Optional<MatOfPoint> getFourPointsInScale(Mat imageMat, double scale) {
-        Optional<MatOfPoint> biggest4EdgedContour = getBiggest4EdgedContour(getContours(getEdges(imageMat)));
+        Optional<MatOfPoint> biggest4EdgedContour = getBiggest4EdgedContour(getContours(getEdges(imageMat)), imageMat.size().area());
 
         MatOfPoint target = new MatOfPoint();
         if (biggest4EdgedContour.isPresent()) {
@@ -75,12 +75,17 @@ public class ImageOperations {
         return contours;
     }
 
-    public static Optional<MatOfPoint> getBiggest4EdgedContour(List<MatOfPoint> contours) {
+    public static Optional<MatOfPoint> getBiggest4EdgedContour(List<MatOfPoint> contours, double wholeImageArea) {
 
         // TODO this sorting works, the one below does not
         Map<Integer, Double> map = new HashMap<>();
         for (int i = 0; i < contours.size(); i++) {
-            map.put(i, Imgproc.contourArea(contours.get(i)));
+            var contourArea = Imgproc.contourArea(contours.get(i));
+
+            // don't take ridiculously small contours into account
+            if (contourArea > 0.25 * wholeImageArea) {
+                map.put(i, contourArea);
+            }
         }
 
         LinkedHashMap<Integer, Double> collect = map.entrySet()
@@ -147,23 +152,23 @@ public class ImageOperations {
         Mat imageMat = loadImage(imagePath.getAbsolutePath());
         Mat copyOfOriginalImage = imageMat.clone();
 
-        saveImage(imageMat, "original" + "_" + imagePath.getName());
+        saveImage(imageMat, "public/original" + "_" + imagePath.getName());
 
         double scale = resize(imageMat);
-        saveImage(imageMat, "resized" + "_" + imagePath.getName());
+        saveImage(imageMat, "public/resized" + "_" + imagePath.getName());
 
         grayscale(imageMat);
-        saveImage(imageMat, "grayscale" + "_" + imagePath.getName());
+        saveImage(imageMat, "public/grayscale" + "_" + imagePath.getName());
 
         gaussianBlur(imageMat);
-        saveImage(imageMat, "blurred" + "_" + imagePath.getName());
+        saveImage(imageMat, "public/blurred" + "_" + imagePath.getName());
 
         Optional<MatOfPoint> fourPoints = getFourPointsInScale(imageMat, scale);
 
         if (fourPoints.isPresent()) {
             warpPerspective(copyOfOriginalImage, fourPoints.get());
-            saveImage(copyOfOriginalImage, "perspective_warp" + "_" + imagePath.getName());
-            return Optional.of(new File("perspective_warp" + "_" + imagePath.getName()));
+            saveImage(copyOfOriginalImage, "public/perspective_warp" + "_" + imagePath.getName());
+            return Optional.of(new File("public/perspective_warp" + "_" + imagePath.getName()));
         } else {
             return Optional.empty();
         }
