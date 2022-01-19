@@ -6,9 +6,8 @@ import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.opencv.imgproc.Imgproc.COLOR_BGR2GRAY;
 
@@ -77,11 +76,34 @@ public class ImageOperations {
     }
 
     public static Optional<MatOfPoint> getBiggest4EdgedContour(List<MatOfPoint> contours) {
-        contours.sort((a, b) -> (int) (Imgproc.contourArea(b) - Imgproc.contourArea(a)));
+
+        // TODO this sorting works, the one below does not
+        Map<Integer, Double> map = new HashMap<>();
+        for (int i = 0; i < contours.size(); i++) {
+            map.put(i, Imgproc.contourArea(contours.get(i)));
+        }
+
+        LinkedHashMap<Integer, Double> collect = map.entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByValue())
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (oldValue, newValue) -> oldValue, LinkedHashMap::new));
+
+        List<MatOfPoint> sortedContours = new ArrayList<>();
+        for (var entry : collect.entrySet()) {
+            sortedContours.add(contours.get(entry.getKey()));
+        }
+
+        Collections.reverse(sortedContours);
+
+        // TODO why does this not work
+//        contours.sort((a, b) -> (int) (Imgproc.contourArea(b) - Imgproc.contourArea(a)));
 
         MatOfPoint2f biggest4EdgedContour = null;
 
-        for (MatOfPoint contour : contours) {
+        for (MatOfPoint contour : sortedContours) {
             MatOfPoint2f contourButMatOfPoint2f = new MatOfPoint2f();
             contour.convertTo(contourButMatOfPoint2f, CvType.CV_32F);
             MatOfPoint2f res = new MatOfPoint2f();
@@ -125,23 +147,23 @@ public class ImageOperations {
         Mat imageMat = loadImage(imagePath.getAbsolutePath());
         Mat copyOfOriginalImage = imageMat.clone();
 
-//        saveImage(imageMat, "0_original" + "_" + imagePath.getName());
+        saveImage(imageMat, "original" + "_" + imagePath.getName());
 
         double scale = resize(imageMat);
-//        saveImage(imageMat, "1_resized" + "_" + imagePath.getName());
+        saveImage(imageMat, "resized" + "_" + imagePath.getName());
 
         grayscale(imageMat);
-//        saveImage(imageMat, "2_grayscaled" + "_" + imagePath.getName());
+        saveImage(imageMat, "grayscale" + "_" + imagePath.getName());
 
         gaussianBlur(imageMat);
-//        saveImage(imageMat, "3_blurred" + "_" + imagePath.getName());
+        saveImage(imageMat, "blurred" + "_" + imagePath.getName());
 
         Optional<MatOfPoint> fourPoints = getFourPointsInScale(imageMat, scale);
 
         if (fourPoints.isPresent()) {
             warpPerspective(copyOfOriginalImage, fourPoints.get());
-            saveImage(copyOfOriginalImage, "5_after_perspective_warp" + "_" + imagePath.getName());
-            return Optional.of(new File("5_after_perspective_warp" + "_" + imagePath.getName()));
+            saveImage(copyOfOriginalImage, "perspective_warp" + "_" + imagePath.getName());
+            return Optional.of(new File("perspective_warp" + "_" + imagePath.getName()));
         } else {
             return Optional.empty();
         }
