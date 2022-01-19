@@ -12,7 +12,7 @@ import java.awt.image.BufferedImage;
 @Service
 public class TesseractServiceImpl implements TesseractService {
     @Override
-    public OcrResponse calculate(BufferedImage bufferedImage) throws TesseractException {
+    public OcrResponse performOCR(BufferedImage bufferedImage) throws TesseractException {
 
         Tesseract tesseract = new Tesseract();
         tesseract.setLanguage("por");
