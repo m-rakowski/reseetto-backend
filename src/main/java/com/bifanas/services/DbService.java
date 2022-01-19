@@ -1,5 +1,6 @@
 package com.bifanas.services;
 
+import com.bifanas.model.UpdateTotal;
 import com.bifanas.model.UploadedFile;
 import javassist.NotFoundException;
 
@@ -13,5 +14,8 @@ public interface DbService {
     UploadedFile findById(String id) throws NotFoundException;
 
     void deleteById(String id) throws NotFoundException;
+
+    UploadedFile updateTotal(UpdateTotal updateTotal) throws NotFoundException;
+
 }
 
