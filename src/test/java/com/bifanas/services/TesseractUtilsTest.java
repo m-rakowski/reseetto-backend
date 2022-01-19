@@ -14,13 +14,13 @@ public class TesseractUtilsTest {
     @Parameterized.Parameters(name = "{index}: TesseractUtils.getTotalFromText({1})={0}")
     public static Iterable<Object[]> data() {
         return Arrays.asList(new Object[][]{
-                {"1.00 EUR", "1,00"},
-                {"1.00 EUR", "1.00EUR"},
-                {"1.00 EUR", "1.00"},
-                {"-1.00 EUR", "1.000EUR"},
-                {"1.00 EUR", "abc 01,00"},
-                {"1.00 EUR", "abc 01,00"},
-                {"1.00 EUR", "abc 01,00 2.250"},
+                {"1.00", "1,00"},
+                {"1.00", "1.00EUR"},
+                {"1.00", "1.00"},
+                {"-1.00", "1.000EUR"},
+                {"1.00", "abc 01,00"},
+                {"1.00", "abc 01,00"},
+                {"1.00", "abc 01,00 2.250"},
         });
     }
 

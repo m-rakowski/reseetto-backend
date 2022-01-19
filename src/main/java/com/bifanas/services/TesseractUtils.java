@@ -12,7 +12,7 @@ public class TesseractUtils {
         DoubleStream allMatches = getAllMatches(text);
         Double max = allMatches.max().orElse(-1);
 
-        return String.format("%.2f EUR", max);
+        return String.format("%.2f", max);
     }
 
     public static DoubleStream getAllMatches(String text) {

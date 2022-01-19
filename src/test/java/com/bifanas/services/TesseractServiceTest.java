@@ -16,6 +16,6 @@ public class TesseractServiceTest {
         var image = ImageIO.read(new File("src/test/resources/264770293_1317122782058374_8632100671026656291_n.jpg"));
         OcrResponse result = tesseractService.performOCR(image);
 
-        assertEquals("4.50 EUR", result.getTotal());
+        assertEquals("4.50", result.getTotal());
     }
 }
