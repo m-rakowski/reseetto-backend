@@ -1,5 +1,6 @@
 package com.bifanas.services;
 
+import com.bifanas.model.UpdateTotal;
 import com.bifanas.model.UploadedFile;
 import com.bifanas.repository.UploadedFileRepository;
 import javassist.NotFoundException;
@@ -45,7 +46,9 @@ public class DbServiceImpl implements DbService {
         Optional<UploadedFile> foundById = uploadedFileRepository.findById(id);
 
         if (foundById.isEmpty()) {
-            throw new NotFoundException("File with id= not found");
+            throw new NotFoundException(
+                    String.format("No file with id=%s found", id)
+            );
         }
 
         return foundById.get();
@@ -57,5 +60,19 @@ public class DbServiceImpl implements DbService {
 
         UploadedFile foundById = this.findById(id); // TODO this is probably unnecessary
         this.uploadedFileRepository.deleteById(id);
+    }
+
+    @Override
+    public UploadedFile updateTotal(UpdateTotal updateTotal) throws NotFoundException {
+        Optional<UploadedFile> byIdOptional = this.uploadedFileRepository.findBySavedName(updateTotal.getSavedName());
+        if (byIdOptional.isEmpty()) {
+            throw new NotFoundException(
+                    String.format("No file with saved_name=%s found", updateTotal.getSavedName())
+            );
+        }
+        UploadedFile byId = byIdOptional.get();
+
+        byId.setTotal(updateTotal.getTotal());
+        return this.uploadedFileRepository.save(byId);
     }
 }
