@@ -148,27 +148,27 @@ public class ImageOperations {
         return List.of();
     }
 
-    public static Optional<File> fixPerspective(File imagePath) {
-        Mat imageMat = loadImage(imagePath.getAbsolutePath());
+    public static Optional<File> fixPerspective(File file) {
+        Mat imageMat = loadImage(file.getAbsolutePath());
         Mat copyOfOriginalImage = imageMat.clone();
 
-        saveImage(imageMat, "public/original" + "_" + imagePath.getName());
+        saveImage(imageMat, "public/original" + "_" + file.getName());
 
         double scale = resize(imageMat);
-        saveImage(imageMat, "public/resized" + "_" + imagePath.getName());
+        saveImage(imageMat, "public/resized" + "_" + file.getName());
 
         grayscale(imageMat);
-        saveImage(imageMat, "public/grayscale" + "_" + imagePath.getName());
+        saveImage(imageMat, "public/grayscale" + "_" + file.getName());
 
         gaussianBlur(imageMat);
-        saveImage(imageMat, "public/blurred" + "_" + imagePath.getName());
+        saveImage(imageMat, "public/blurred" + "_" + file.getName());
 
         Optional<MatOfPoint> fourPoints = getFourPointsInScale(imageMat, scale);
 
         if (fourPoints.isPresent()) {
             warpPerspective(copyOfOriginalImage, fourPoints.get());
-            saveImage(copyOfOriginalImage, "public/perspective_warp" + "_" + imagePath.getName());
-            return Optional.of(new File("public/perspective_warp" + "_" + imagePath.getName()));
+            saveImage(copyOfOriginalImage, "public/perspective_warp" + "_" + file.getName());
+            return Optional.of(new File("public/perspective_warp" + "_" + file.getName()));
         } else {
             return Optional.empty();
         }

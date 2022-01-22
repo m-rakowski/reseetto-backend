@@ -13,6 +13,12 @@ import java.util.Arrays;
 @RunWith(Parameterized.class)
 public class ImageOperationsPerspectiveTest {
 
+    private final File input;
+
+    public ImageOperationsPerspectiveTest(File input) {
+        this.input = input;
+    }
+
     @BeforeClass
     public static void initOpenCv() {
         OpenCV.loadShared();
@@ -36,11 +42,5 @@ public class ImageOperationsPerspectiveTest {
     @Test
     public void orderPointsTopLeftTopRightBottomRightBottomLeft() {
         ImageOperations.fixPerspective(input);
-    }
-
-    private final File input;
-
-    public ImageOperationsPerspectiveTest(File input) {
-        this.input = input;
     }
 }

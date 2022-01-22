@@ -11,6 +11,14 @@ import static org.junit.Assert.assertEquals;
 @RunWith(Parameterized.class)
 public class TesseractUtilsTest {
 
+    private final String expected;
+    private final String input;
+
+    public TesseractUtilsTest(String expected, String input) {
+        this.expected = expected;
+        this.input = input;
+    }
+
     @Parameterized.Parameters(name = "{index}: TesseractUtils.getTotalFromText({1})={0}")
     public static Iterable<Object[]> data() {
         return Arrays.asList(new Object[][]{
@@ -27,13 +35,5 @@ public class TesseractUtilsTest {
     @Test
     public void getTotalFromText() {
         assertEquals(expected, TesseractUtils.getTotalFromText(input));
-    }
-
-    private final String expected;
-    private final String input;
-
-    public TesseractUtilsTest(String expected, String input) {
-        this.expected = expected;
-        this.input = input;
     }
 }

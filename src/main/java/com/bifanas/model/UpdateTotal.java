@@ -9,5 +9,5 @@ import lombok.NoArgsConstructor;
 @Data
 public class UpdateTotal {
     String total;
-    String savedName;
+    String fileId;
 }

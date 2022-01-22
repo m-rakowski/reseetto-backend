@@ -1,9 +1,8 @@
 package com.bifanas.controller;
 
 import com.bifanas.BifanasBackendApplication;
-import com.bifanas.model.OcrResponse;
+import com.bifanas.model.OcrResponseRM;
 import com.bifanas.services.ImageService;
-import com.bifanas.services.TesseractService;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -42,7 +41,8 @@ public class ImageControllerTest {
     @Before
     public void setUp() throws Exception {
         mockMvc = webAppContextSetup(webApplicationContext).build();
-        Mockito.when(imageService.getTextFromFile(any())).thenReturn(new OcrResponse("1.23 abc", "1.23"));
+        Mockito.when(imageService.saveFileAndPerformOCR(any())).thenReturn(
+                OcrResponseRM.builder().total("1.23").text("1.23").build());
     }
 
     @Test

@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
 import javax.validation.constraints.Size;
@@ -31,12 +30,6 @@ public class UploadedFile {
 
     @Column(name = "original_name")
     private String originalName;
-
-    @Column(name = "saved_name")
-    private String savedName;
-
-    @Column(name = "url")
-    private String url;
 
     @Size(max = 4000)
     @Column(name = "text", length = 4000)
