@@ -7,7 +7,7 @@ import javassist.NotFoundException;
 import java.util.List;
 
 public interface DbService {
-    void save(String originalName, String savedName, String text, String total);
+    String save(String originalName, String text, String total);
 
     List<UploadedFile> getAll();
 

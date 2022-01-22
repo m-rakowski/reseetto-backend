@@ -23,16 +23,16 @@ public class DbServiceImpl implements DbService {
 
     @Override
     @Transactional
-    public void save(String originalName, String savedName, String text, String total) {
+    public String save(String originalName, String text, String total) {
 
-        this.uploadedFileRepository.save(UploadedFile.builder()
+        UploadedFile saved = this.uploadedFileRepository.save(UploadedFile.builder()
                 .originalName(originalName)
-                .savedName(savedName)
-                .url(savedName)
                 .timestamp(new Date())
                 .text(text)
                 .total(total)
                 .build());
+
+        return saved.getId();
     }
 
     @Override
@@ -64,10 +64,10 @@ public class DbServiceImpl implements DbService {
 
     @Override
     public UploadedFile updateTotal(UpdateTotal updateTotal) throws NotFoundException {
-        Optional<UploadedFile> byIdOptional = this.uploadedFileRepository.findBySavedName(updateTotal.getSavedName());
+        Optional<UploadedFile> byIdOptional = this.uploadedFileRepository.findById(updateTotal.getFileId());
         if (byIdOptional.isEmpty()) {
             throw new NotFoundException(
-                    String.format("No file with saved_name=%s found", updateTotal.getSavedName())
+                    String.format("No file with saved_name=%s found", updateTotal.getFileId())
             );
         }
         UploadedFile byId = byIdOptional.get();

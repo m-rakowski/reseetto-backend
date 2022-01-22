@@ -17,6 +17,14 @@ import static org.junit.Assert.assertEquals;
 @RunWith(Parameterized.class)
 public class ImageOperationsTest {
 
+    private final List<Point> expected;
+    private final List<Point> input;
+
+    public ImageOperationsTest(List<Point> expected, List<Point> input) {
+        this.expected = expected;
+        this.input = input;
+    }
+
     @BeforeClass
     public static void initOpenCv() {
         OpenCV.loadShared();
@@ -47,13 +55,5 @@ public class ImageOperationsTest {
     @Test
     public void orderPointsTopLeftTopRightBottomRightBottomLeft() {
         assertEquals(expected, ImageOperations.orderPointsTopLeftTopRightBottomRightBottomLeft(input));
-    }
-
-    private final List<Point> expected;
-    private final List<Point> input;
-
-    public ImageOperationsTest(List<Point> expected, List<Point> input) {
-        this.expected = expected;
-        this.input = input;
     }
 }
