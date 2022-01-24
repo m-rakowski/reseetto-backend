@@ -22,7 +22,6 @@ public class UploadedFileRM {
         this.text = uploadedFile.getText();
         this.total = uploadedFile.getTotal();
         this.timestamp = uploadedFile.getTimestamp();
-        this.savedFileName = uploadedFile.getId()
-                + "." + FilenameUtils.getExtension(uploadedFile.getOriginalName());
+        this.savedFileName = uploadedFile.getSavedFileName();
     }
 }
