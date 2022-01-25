@@ -33,8 +33,8 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public void deleteById(String id) throws IOException {
-        String fileName = "public/" + id;
+    public void deleteBySavedFileName(String savedFileName) throws IOException {
+        String fileName = "public/" + savedFileName;
         Files.delete(Paths.get(fileName));
     }
 }

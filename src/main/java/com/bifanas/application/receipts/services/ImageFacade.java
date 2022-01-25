@@ -49,9 +49,9 @@ public class ImageFacade {
         return new UploadedFileRM(dbService.updateTotal(updateTotal));
     }
 
-    public void deleteFileAndDbLog(String id) throws NotFoundException, IOException {
-        fileService.deleteById(id);
-        dbService.deleteById(id);
+    public void deleteFileAndDbLog(String savedFileName) throws IOException {
+        fileService.deleteBySavedFileName(savedFileName);
+        dbService.deleteBySavedFileName(savedFileName);
     }
 
     public OcrResponseRM saveFileAndPerformOCR(MultipartFile multipartFile) throws IOException, TesseractException {

@@ -31,11 +31,6 @@ public class DbServiceImpl implements DbService {
     }
 
     @Override
-    public void deleteById(String id) {
-        this.uploadedFileRepository.deleteById(id);
-    }
-
-    @Override
     public List<UploadedFile> getAll() {
         return this.uploadedFileRepository.findAll();
     }
@@ -52,6 +47,11 @@ public class DbServiceImpl implements DbService {
         UploadedFile uploadedFile = bySavedFileName.orElseThrow(() -> new ImageNotFoundException(""));
         uploadedFile.setTotal(updateTotal.getTotal());
         return uploadedFileRepository.save(uploadedFile);
+    }
+
+    @Override
+    public void deleteBySavedFileName(String savedFileName) {
+        uploadedFileRepository.deleteBySavedFileName(savedFileName);
     }
 
 }
