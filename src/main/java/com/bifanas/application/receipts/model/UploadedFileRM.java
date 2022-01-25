@@ -9,7 +9,7 @@ import java.util.Date;
 
 @Data
 public class UploadedFileRM {
-    private String id;
+    private long id;
     private String originalName;
     private String savedFileName;
     private String text;
