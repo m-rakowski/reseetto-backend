@@ -51,7 +51,8 @@ public class ImageController {
                 .builder()
                 .text(uploadedFile.getText())
                 .total(updateTotal.getTotal())
-                .savedFileName(uploadedFile.getId()).build(), HttpStatus.CREATED);
+                .savedFileName(uploadedFile.getSavedFileName())
+                .build(), HttpStatus.CREATED);
     }
 
     @DeleteMapping("/images/{id}")

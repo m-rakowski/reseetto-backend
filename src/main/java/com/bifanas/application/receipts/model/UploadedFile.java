@@ -20,17 +20,11 @@ import java.util.Date;
 public class UploadedFile {
 
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(
-            name = "UUID",
-            strategy = "org.hibernate.id.UUIDGenerator"
-    )
-    @ColumnDefault("random_uuid()")
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
 
     @Column(name = "original_name")
     private String originalName;
-
 
     @Column(name = "saved_file_name")
     private String savedFileName;
