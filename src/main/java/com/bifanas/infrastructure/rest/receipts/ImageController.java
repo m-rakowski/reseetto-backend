@@ -55,9 +55,9 @@ public class ImageController {
                 .build(), HttpStatus.CREATED);
     }
 
-    @DeleteMapping("/images/{id}")
-    public ResponseEntity<HttpStatus> deleteById(@PathVariable("id") String id) throws NotFoundException, IOException {
-        imageFacade.deleteFileAndDbLog(id);
+    @DeleteMapping("/images/{savedFileName}")
+    public ResponseEntity<HttpStatus> deleteById(@PathVariable("savedFileName") String savedFileName) throws NotFoundException, IOException {
+        imageFacade.deleteFileAndDbLog(savedFileName);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 

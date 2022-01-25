@@ -8,4 +8,5 @@ import java.util.Optional;
 
 public interface UploadedFileRepository extends JpaRepository<UploadedFile, String> {
     Optional<UploadedFile> findBySavedFileName(String savedFileName);
+    void deleteBySavedFileName(String savedFileName);
 }

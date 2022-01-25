@@ -11,13 +11,12 @@ public interface DbService {
 
     UploadedFile save(String originalName, String text, String total, String savedFileName);
 
-    void deleteById(String id);
-
     List<UploadedFile> getAll();
 
     Optional<UploadedFile> findById(String id);
 
     UploadedFile updateTotal(UpdateTotal updateTotal);
 
+    void deleteBySavedFileName(String savedFileName);
 }
 

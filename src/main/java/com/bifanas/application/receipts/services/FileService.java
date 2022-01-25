@@ -9,5 +9,5 @@ import java.util.UUID;
 public interface FileService {
     File saveMultipartInPublic(MultipartFile multipartFile, String savedFileName) throws IOException;
 
-    void deleteById(String id) throws IOException;
+    void deleteBySavedFileName(String savedFileName) throws IOException;
 }

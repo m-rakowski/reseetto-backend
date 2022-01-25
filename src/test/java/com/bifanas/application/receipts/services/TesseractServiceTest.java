@@ -1,6 +1,7 @@
 package com.bifanas.application.receipts.services;
 
 import com.bifanas.application.receipts.model.OcrResponse;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.imageio.ImageIO;
@@ -10,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TesseractServiceTest {
     @Test
+    @Ignore
     public void calculate() throws Exception {
         TesseractService tesseractService = new TesseractServiceImpl();
 
