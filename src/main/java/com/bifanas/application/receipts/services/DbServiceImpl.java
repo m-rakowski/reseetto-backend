@@ -4,6 +4,7 @@ import com.bifanas.application.receipts.model.UpdateTotal;
 import com.bifanas.application.receipts.model.UploadedFile;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -32,7 +33,8 @@ public class DbServiceImpl implements DbService {
 
     @Override
     public List<UploadedFile> getAll() {
-        return this.uploadedFileRepository.findAll();
+        return this.uploadedFileRepository.findAll(
+                Sort.by(Sort.Direction.DESC, "timestamp"));
     }
 
     @Override
