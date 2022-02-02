@@ -1,6 +1,7 @@
 package com.bifanas.application.receipts.services;
 
 import nu.pattern.OpenCV;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,17 +12,23 @@ import java.util.Arrays;
 
 
 @RunWith(Parameterized.class)
-public class ImageOperationsPerspectiveTest {
+public class ImageOperationsServicePerspectiveTest {
 
     private final File input;
 
-    public ImageOperationsPerspectiveTest(File input) {
+    private ImageOperationsService imageOperationsService;
+    public ImageOperationsServicePerspectiveTest(File input) {
         this.input = input;
     }
 
     @BeforeClass
     public static void initOpenCv() {
         OpenCV.loadShared();
+    }
+
+    @Before
+    public void init() {
+        this.imageOperationsService = new ImageOperationsServiceImpl();
     }
 
     @Parameterized.Parameters(name = "{index} {0}")
@@ -41,6 +48,6 @@ public class ImageOperationsPerspectiveTest {
 
     @Test
     public void orderPointsTopLeftTopRightBottomRightBottomLeft() {
-        ImageOperations.fixPerspective(input);
+        imageOperationsService.fixPerspective(input);
     }
 }

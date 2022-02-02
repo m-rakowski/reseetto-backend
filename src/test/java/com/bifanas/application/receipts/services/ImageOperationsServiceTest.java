@@ -1,6 +1,7 @@
 package com.bifanas.application.receipts.services;
 
 import nu.pattern.OpenCV;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -15,12 +16,13 @@ import static org.junit.Assert.assertEquals;
 
 
 @RunWith(Parameterized.class)
-public class ImageOperationsTest {
+public class ImageOperationsServiceTest {
 
     private final List<Point> expected;
     private final List<Point> input;
+    private ImageOperationsService imageOperationsService;
 
-    public ImageOperationsTest(List<Point> expected, List<Point> input) {
+    public ImageOperationsServiceTest(List<Point> expected, List<Point> input) {
         this.expected = expected;
         this.input = input;
     }
@@ -29,6 +31,11 @@ public class ImageOperationsTest {
     public static void initOpenCv() {
         OpenCV.loadShared();
 
+    }
+
+    @Before
+    public void init() {
+        this.imageOperationsService = new ImageOperationsServiceImpl();
     }
 
     @Parameterized.Parameters(name = "{index}: TesseractUtils.getTotalFromText({1})={0}")
@@ -48,12 +55,12 @@ public class ImageOperationsTest {
     @Ignore
     @Test(expected = IllegalArgumentException.class)
     public void shouldThrowExceptionIfNot4Points() {
-        ImageOperations.orderPointsTopLeftTopRightBottomRightBottomLeft(List.of());
+        imageOperationsService.orderPointsTopLeftTopRightBottomRightBottomLeft(List.of());
     }
 
     @Ignore
     @Test
     public void orderPointsTopLeftTopRightBottomRightBottomLeft() {
-        assertEquals(expected, ImageOperations.orderPointsTopLeftTopRightBottomRightBottomLeft(input));
+        assertEquals(expected, imageOperationsService.orderPointsTopLeftTopRightBottomRightBottomLeft(input));
     }
 }
