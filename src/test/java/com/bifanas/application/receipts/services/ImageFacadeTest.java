@@ -23,13 +23,17 @@ public class ImageFacadeTest {
     private TesseractService tesseractService;
     private FileService fileService;
     private DbService dbService;
+    private QRService qrService;
+    private ImageOperationsService imageOperationsService;
 
     @Before
     public void init() {
         tesseractService = mock(TesseractService.class);
         fileService = mock(FileService.class);
         dbService = mock(DbService.class);
-        tut = new ImageFacade(tesseractService, fileService, dbService);
+        qrService = mock(QRService.class);
+        imageOperationsService = mock(ImageOperationsService.class);
+        tut = new ImageFacade(tesseractService, fileService, dbService, qrService, imageOperationsService);
     }
 
     @Test
@@ -76,7 +80,7 @@ public class ImageFacadeTest {
 
         // when
         when(dbService.updateTotal(anyUpdateTotal())).thenReturn(expected);
-        tut.updateTotal();
+        tut.updateTotal(input);
 
         // TODO expect total to be updated
 

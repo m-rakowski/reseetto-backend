@@ -1,7 +1,6 @@
 package com.bifanas.application.receipts.services;
 
 import com.bifanas.application.receipts.model.*;
-import javassist.NotFoundException;
 import lombok.AllArgsConstructor;
 import net.sourceforge.tess4j.TesseractException;
 import org.apache.commons.io.FilenameUtils;
@@ -32,6 +31,11 @@ public class ImageFacade {
     @Autowired
     private DbService dbService;
 
+    @Autowired
+    private QRService qrService;
+
+    @Autowired
+    private ImageOperationsService imageOperationsService;
 
     public UploadedFileRM findById(String id) {
         return this.dbService.findById(id)
@@ -61,20 +65,24 @@ public class ImageFacade {
 
         final File savedFile = fileService.saveMultipartInPublic(multipartFile, savedFileName);
 
-        Optional<File> fixedImage = ImageOperations.fixPerspective(savedFile);
+        Optional<File> fixedImage = imageOperationsService.fixPerspective(savedFile);
 
-        OcrResponse ocrResponse =
-                fixedImage.isPresent()
-                        ? tesseractService.performOCR(ImageIO.read(fixedImage.get()))
-                        : tesseractService.performOCR(ImageIO.read(savedFile));
+        String readAmount = qrService.getAmountFromFile(savedFile.getAbsolutePath());
 
-        UploadedFile save = dbService.save(
+        OcrResponse ocrResponse;
+        if (readAmount.equals("")) {
+            ocrResponse =
+                    fixedImage.isPresent()
+                            ? tesseractService.performOCR(ImageIO.read(fixedImage.get()))
+                            : tesseractService.performOCR(ImageIO.read(savedFile));
+        } else {
+            ocrResponse = new OcrResponse("", readAmount);
+        }
+        UploadedFile save =  dbService.save(
                 multipartFile.getOriginalFilename(), ocrResponse.getText(), ocrResponse.getTotal(), savedFileName);
 
         return new OcrResponseRM(save.getText(), save.getTotal(), save.getSavedFileName());
     }
 
-    public void updateTotal() {
-    }
 
 }
