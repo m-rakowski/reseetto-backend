@@ -67,21 +67,25 @@ public class ImageFacade {
 
         Optional<File> fixedImage = imageOperationsService.fixPerspective(savedFile);
 
+        OcrResponse ocrResponse =
+                fixedImage.isPresent()
+                        ? tesseractService.performOCR(ImageIO.read(fixedImage.get()))
+                        : tesseractService.performOCR(ImageIO.read(savedFile));
+
         String readAmount = qrService.getAmountFromFile(savedFile.getAbsolutePath());
 
-        OcrResponse ocrResponse;
-        if (readAmount.equals("")) {
-            ocrResponse =
-                    fixedImage.isPresent()
-                            ? tesseractService.performOCR(ImageIO.read(fixedImage.get()))
-                            : tesseractService.performOCR(ImageIO.read(savedFile));
-        } else {
-            ocrResponse = new OcrResponse("", readAmount);
+        if (!readAmount.equals("")) {
+            ocrResponse.setTotal(readAmount);
         }
-        UploadedFile save =  dbService.save(
-                multipartFile.getOriginalFilename(), ocrResponse.getText(), ocrResponse.getTotal(), savedFileName);
 
-        return new OcrResponseRM(save.getText(), save.getTotal(), save.getSavedFileName());
+        UploadedFile savedInDb = dbService.save(
+                multipartFile.getOriginalFilename(),
+                ocrResponse.getText(),
+                ocrResponse.getTotal(),
+                savedFileName);
+
+        return new OcrResponseRM(
+                savedInDb.getText(), savedInDb.getTotal(), savedInDb.getSavedFileName());
     }
 
 

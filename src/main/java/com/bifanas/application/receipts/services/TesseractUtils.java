@@ -8,8 +8,7 @@ import java.util.stream.DoubleStream;
 public class TesseractUtils {
 
     public static String getTotalFromText(String text) {
-
-        DoubleStream allMatches = getAllMatches(text);
+        DoubleStream allMatches = getAllMatches(text.replaceAll(" ", ""));
         Double max = allMatches.max().orElse(-1);
 
         if (max == -1) {
