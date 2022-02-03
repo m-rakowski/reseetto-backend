@@ -37,6 +37,7 @@ public class QRServiceImpl implements QRService {
         try {
             result = new MultiFormatReader().decode(binaryBitmap);
         } catch (NotFoundException e) {
+            log.warn("could not read QR code");
             return "";
         }
 
