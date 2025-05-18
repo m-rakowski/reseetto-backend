@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.example</groupId>
-	<artifactId>bifanas-backend</artifactId>
+	<artifactId>reseetto-backend</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>bifanas-backend</name>
+	<name>reseetto-backend</name>
 	<description>Bifanas</description>
 	<properties>
 		<java.version>11</java.version>
@@ -111,7 +111,7 @@
 	</dependencies>
 
 	<build>
-		<finalName>bifanas-backend</finalName>
+		<finalName>reseetto-backend</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>

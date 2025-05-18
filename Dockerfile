@@ -10,7 +10,7 @@ RUN mvn -f /home/app/pom.xml clean package -DskipTests
 # Package stage
 #
 FROM openjdk:11-jre-slim
-COPY --from=build /home/app/target/bifanas-backend.jar /usr/local/lib/app.jar
+COPY --from=build /home/app/target/reseetto-backend.jar /usr/local/lib/app.jar
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt update && apt install -y tesseract-ocr=4.1.1-2.1 && rm -rf /var/lib/apt/lists/*
